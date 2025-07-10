@@ -1,0 +1,10 @@
+# Node modules
+file-sharing-frontend/node_modules/
+file-share-backend/node_modules/
+
+# Environment files
+file-share-backend/.env
+
+# Build folders
+# file-share-frontend/build/
+file-share-backend/uploads/
