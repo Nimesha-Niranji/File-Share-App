@@ -18,6 +18,14 @@ function Dashboard() {
     setFiles(res.data);
   };
 
+  const deleteFile = async (id) => {
+    if (window.confirm('Are you sure you want to delete this file?')) {
+    //   console.log("Deleting file ID:", id);
+      await API.delete(`/files/${id}`);
+      fetchFiles();
+    }
+  };
+
   useEffect(() => {
     fetchFiles();
   }, []);
@@ -31,7 +39,9 @@ function Dashboard() {
       <ul>
         {files.map((f) => (
           <li key={f.id}>
-            {f.filename} - <a href={`http://localhost:5000/${f.path}`} target="_blank" rel="noreferrer">Download</a>
+            {f.filename} – 
+            <a href={`http://localhost:5000/${f.path}`} target="_blank" rel="noreferrer">Download</a> – 
+            <button onClick={() => deleteFile(f.id)}>Delete</button>
           </li>
         ))}
       </ul>

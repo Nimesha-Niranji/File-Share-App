@@ -10,7 +10,7 @@ router.post('/login', authController.login);
 router.post('/upload', auth, fileController.uploadMiddleware, fileController.uploadFile);
 router.get('/download/:id', auth, fileController.downloadFile);
 router.get('/files', auth, fileController.getUserFiles);
-
+router.delete('/files/:id', auth, fileController.deleteFile);
 
 
 module.exports = router;
