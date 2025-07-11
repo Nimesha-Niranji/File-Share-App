@@ -1,3 +1,6 @@
+//cintrollers/fileController.js
+
+
 const File = require('../models/File');
 const multer = require('multer');
 const path = require('path');
@@ -26,29 +29,49 @@ exports.downloadFile = async (req, res) => {
   res.download(file.path, file.filename);
 };
 
+// exports.getUserFiles = async (req, res) => {
+//   const files = await File.findAll({ where: { userId: req.user.id } });
+//   res.json(files);
+// };
+
 exports.getUserFiles = async (req, res) => {
-  const files = await File.findAll({ where: { userId: req.user.id } });
+  let files;
+
+  if (req.user.role === 'admin') {
+    // Admin can view all
+    files = await File.findAll();
+  } else {
+    // Regular users see only their own
+    files = await File.findAll({ where: { userId: req.user.id } });
+  }
+
   res.json(files);
 };
 
 exports.deleteFile = async (req, res) => {
   const file = await File.findByPk(req.params.id);
 
-  // Check if file exists and belongs to user
-  if (!file || file.userId !== req.user.id) {
-    return res.status(403).json({ message: 'Unauthorized or file not found' });
+  // Check if the file exists
+  if (!file) {
+    return res.status(404).json({ msg: 'File not found' });
   }
 
-  // Delete file from disk
+  // Check if the user is the file owner OR an admin
+  if (file.userId !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ msg: 'Unauthorized' });
+  }
+
   try {
-    fs.unlinkSync(path.join(__dirname, '..', file.path));
-  } catch (err) {
-    console.error('File delete error:', err.message);
+    const fs = require('fs');
+    fs.unlinkSync(file.path);
+    await file.destroy();
+    res.json({ msg: 'File deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error deleting file' });
   }
-
-  // Delete file from database
-  await file.destroy();
-
-  res.json({ message: 'File deleted successfully' });
 };
+
+
+
 
