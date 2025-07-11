@@ -61,10 +61,11 @@ function Dashboard() {
   const adminFiles = files.filter(f => f.userId === userId);
   const otherUserFiles = files.filter(f => f.userId !== userId);
 
+  //File share
   const shareFile = async (id) => {
   try {
     console.log("Calling /share endpoint for file ID:", id);
-    const res = await API.get(`/share/${id}`);  // or `/api/share/${id}` if not set in API.js
+    const res = await API.get(`/share/${id}`);
     console.log("Response from share:", res.data);
     alert(`Shareable link:\n${res.data.link}\n(Expires: ${res.data.expiresAt})`);
   } catch (err) {
@@ -72,9 +73,6 @@ function Dashboard() {
     alert('Failed to generate link');
   }
 };
-
-
-
 
   return (
     <div>

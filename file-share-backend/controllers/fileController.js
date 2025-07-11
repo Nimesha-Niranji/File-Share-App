@@ -46,8 +46,6 @@ exports.generatePublicLink = async (req, res) => {
   }
 };
 
-
-
 exports.uploadFile = async (req, res) => {
   const file = await File.create({
     filename: req.file.filename,
