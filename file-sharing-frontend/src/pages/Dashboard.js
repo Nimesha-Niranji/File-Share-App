@@ -61,6 +61,21 @@ function Dashboard() {
   const adminFiles = files.filter(f => f.userId === userId);
   const otherUserFiles = files.filter(f => f.userId !== userId);
 
+  const shareFile = async (id) => {
+  try {
+    console.log("Calling /share endpoint for file ID:", id);
+    const res = await API.get(`/share/${id}`);  // or `/api/share/${id}` if not set in API.js
+    console.log("Response from share:", res.data);
+    alert(`Shareable link:\n${res.data.link}\n(Expires: ${res.data.expiresAt})`);
+  } catch (err) {
+    console.error('Error in shareFile:', err);
+    alert('Failed to generate link');
+  }
+};
+
+
+
+
   return (
     <div>
       <h2>Dashboard ({isAdmin ? 'Admin' : 'User'})</h2>
@@ -77,6 +92,7 @@ function Dashboard() {
                 {f.filename}
                 <a href={`http://localhost:5000/${f.path}`} target="_blank" rel="noreferrer">Download</a>
                 <button onClick={() => deleteFile(f.id)}>Delete</button>
+                <button onClick={() => shareFile(f.id)}>Share</button>
               </li>
             ))}
           </ul>
@@ -102,6 +118,7 @@ function Dashboard() {
                 {f.filename}
                 <a href={`http://localhost:5000/${f.path}`} target="_blank" rel="noreferrer">Download</a>
                 <button onClick={() => deleteFile(f.id)}>Delete</button>
+                <button onClick={() => shareFile(f.id)}>Share</button>
               </li>
             ))}
           </ul>

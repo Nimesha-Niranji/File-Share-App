@@ -13,6 +13,41 @@ const upload = multer({ storage });
 
 exports.uploadMiddleware = upload.single('file');
 
+const { v4: uuidv4 } = require('uuid');
+
+// Generate public shareable link
+exports.generatePublicLink = async (req, res) => {
+  try {
+    console.log("Generating public link for file:", req.params.id);
+    const file = await File.findByPk(req.params.id);
+
+    if (!file) {
+      console.log("❌ File not found");
+      return res.status(404).json({ msg: 'File not found' });
+    }
+
+    if (file.userId !== req.user.id && req.user.role !== 'admin') {
+      console.log("⛔ Unauthorized");
+      return res.status(403).json({ msg: 'Unauthorized' });
+    }
+
+    const token = uuidv4();
+    const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    file.publicToken = token;
+    file.tokenExpiry = expiry;
+    await file.save();
+
+    console.log("✅ Public link created:", token);
+    res.json({ link: `http://localhost:5000/shared/${token}`, expiresAt: expiry });
+  } catch (error) {
+    console.error("🔥 Error generating link:", error);
+    res.status(500).json({ msg: 'Error generating link' });
+  }
+};
+
+
+
 exports.uploadFile = async (req, res) => {
   const file = await File.create({
     filename: req.file.filename,
@@ -70,6 +105,15 @@ exports.deleteFile = async (req, res) => {
     console.error(error);
     res.status(500).json({ msg: 'Error deleting file' });
   }
+};
+
+module.exports = {
+  uploadFile,
+  downloadFile,
+  getUserFiles,
+  deleteFile,
+  generatePublicLink, // make sure this is here
+  uploadMiddleware
 };
 
 
